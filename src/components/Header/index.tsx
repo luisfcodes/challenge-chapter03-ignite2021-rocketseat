@@ -1,3 +1,7 @@
-export default function Header() {
-  // TODO
+export function Header() {
+  return (
+    <>
+      <h1>Hello World</h1>
+    </>
+  )
 }
