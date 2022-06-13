@@ -1,13 +1,27 @@
 .container {
-  height: 4rem;
+  height: 8rem;
+  max-width: 720px;
+  margin: 0 auto;
   
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   color: var(--gray-100);
+
+  img {
+    width: 40px;
+    height: 23px;
+  }
 
   h1 {
     font-size: 1.3rem;
     margin-left: 0.5rem;
+  }
+
+  span {
+    margin-top: 0.4rem;
+    margin: 0.4rem 0 0 0.2rem;
+    color: var(--highlight-pink);
+    font-weight: bold;
   }
 }
