@@ -1,11 +1,12 @@
-import styles from './styles.module.scss'
+import Link from 'next/link'
+import styles from './header.module.scss'
 
 export function Header() {
   return (
     <header className={styles.container}>
-      <img src="/images/logo.png" alt="Logo" />
-      <h1>spacetraveling</h1>
-      <span>.</span>
+      <Link href="/">
+        <img src="/images/logo.svg" alt="logo" />
+      </Link>
     </header>
   )
 }
