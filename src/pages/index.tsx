@@ -27,7 +27,10 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
-export default function Home(props: HomeProps) {
+export default function Home(props: PostPagination) {
+
+  console.log(props.results[0].data)
+
   return (
     <>
       <Head>
@@ -72,13 +75,13 @@ export default function Home(props: HomeProps) {
 
 export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient({});
-  const postsResponse = await prismic.getAllByType('post', {
+  const results = await prismic.getAllByType('post', {
     pageSize: 100
   });
 
   return {
     props: {
-      postsResponse
+      results
     }
   }
 };
