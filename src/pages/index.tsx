@@ -1,5 +1,7 @@
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
+import { RichText } from 'prismic-dom';
+import { format } from 'date-fns'
 
 import { FiCalendar, FiUser } from 'react-icons/fi'
 
@@ -7,6 +9,7 @@ import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
+import ptBR from 'date-fns/locale/pt-BR';
 
 interface Post {
   uid?: string;
@@ -27,10 +30,7 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
-export default function Home(props: PostPagination) {
-
-  console.log(props.results[0].data)
-
+export default function Home(props: HomeProps) {
   return (
     <>
       <Head>
@@ -38,34 +38,28 @@ export default function Home(props: PostPagination) {
       </Head>
       <main className={styles.container}>
         <ul className={styles.postList}>
-          <li className={styles.postContent}>
-            <h2>Como utilizar Hooks</h2>
-            <p>Pensando em sincronização em vez de ciclos de vida.</p>
-            <div>
+          {props.postsPagination.results.map(post => (
+            <li className={styles.postContent} key={post.uid}>
+              <h2>{post.data.title}</h2>
+              <p>{post.data.subtitle}</p>
+              <div>
               <span>
                 <FiCalendar />
-                19 Abr 2021
+                {format(
+                  new Date(post.first_publication_date),
+                  'dd MMM uuuu',
+                  {
+                    locale: ptBR
+                  }
+                )}
               </span>
               <span>
                 <FiUser />
-                Joseph Oliveira
+                {post.data.author}
               </span>
             </div>
-          </li>
-          <li className={styles.postContent}>
-            <h2>Criando um app CRA do zero</h2>
-            <p>Tudo sobre como criar a sua primeira aplicação utilizando Create React App.</p>
-            <div>
-              <span>
-                <FiCalendar />
-                19 Abr 2021
-              </span>
-              <span>
-                <FiUser />
-                Danilo Vieira
-              </span>
-            </div>
-          </li>
+            </li>
+          ))}
         </ul>
       </main>
     </>
@@ -75,9 +69,21 @@ export default function Home(props: PostPagination) {
 
 export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient({});
-  const results = await prismic.getAllByType('post', {
+  const allPosts = await prismic.getAllByType('post', {
     pageSize: 100
   });
+
+  const results = allPosts.map(post => {
+    return {
+      uid: post.uid,
+      first_publication_date: post.first_publication_date,
+      data: {
+        title: RichText.asText(post.data.title),
+        subtitle: RichText.asText(post.data.subtitle),
+        author: RichText.asText(post.data.author),
+      }
+    }
+  })
 
   return {
     props: {
