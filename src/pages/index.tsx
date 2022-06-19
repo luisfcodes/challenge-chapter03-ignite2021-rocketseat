@@ -30,7 +30,7 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
-export default function Home(props: HomeProps) {
+export default function Home(props: PostPagination) {
   return (
     <>
       <Head>
@@ -38,7 +38,7 @@ export default function Home(props: HomeProps) {
       </Head>
       <main className={styles.container}>
         <ul className={styles.postList}>
-          {props.postsPagination.results.map(post => (
+          {props.results.map(post => (
             <li className={styles.postContent} key={post.uid}>
               <h2>{post.data.title}</h2>
               <p>{post.data.subtitle}</p>
