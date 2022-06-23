@@ -10,6 +10,7 @@ import { getPrismicClient } from '../services/prismic';
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
 import ptBR from 'date-fns/locale/pt-BR';
+import Link from 'next/link';
 
 interface Post {
   uid?: string;
@@ -30,28 +31,24 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
-export default function Home(props: PostPagination) {
+export default function Home(props:HomeProps) {
   return (
     <>
       <Head>
         <title>Home | Spacetraveling</title>
       </Head>
       <main className={styles.container}>
-        <ul className={styles.postList}>
-          {props.results.map(post => (
+        <ul>
+          {props.postsPagination.results.map(post => (
             <li className={styles.postContent} key={post.uid}>
-              <h2>{post.data.title}</h2>
+              <Link href={`/post/${post.uid}`}>
+                <h2>{post.data.title}</h2>
+              </Link>
               <p>{post.data.subtitle}</p>
               <div>
               <span>
                 <FiCalendar />
-                {format(
-                  new Date(post.first_publication_date),
-                  'dd MMM uuuu',
-                  {
-                    locale: ptBR
-                  }
-                )}
+                {post.first_publication_date}
               </span>
               <span>
                 <FiUser />
@@ -70,13 +67,19 @@ export default function Home(props: PostPagination) {
 export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient({});
   const allPosts = await prismic.getAllByType('post', {
-    pageSize: 100
+    pageSize: 10
   });
 
   const results = allPosts.map(post => {
     return {
       uid: post.uid,
-      first_publication_date: post.first_publication_date,
+      first_publication_date: format(
+        new Date(post.first_publication_date),
+        'dd MMM uuuu',
+        {
+          locale: ptBR
+        }
+      ),
       data: {
         title: RichText.asText(post.data.title),
         subtitle: RichText.asText(post.data.subtitle),
@@ -87,7 +90,11 @@ export const getStaticProps: GetStaticProps = async () => {
 
   return {
     props: {
-      results
-    }
+      postsPagination: {
+        results,
+        next_page: ''
+      }
+    },
+    revalidate: 60 * 60 * 24 // 24 hours
   }
 };

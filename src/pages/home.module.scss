@@ -1,10 +1,6 @@
 .container {
   max-width: 720px;
-  margin: 0 auto;
-}
-
-.postList {
-
+  margin: 0 auto 4rem;
 }
 
 .postContent {
@@ -16,6 +12,7 @@
   h2 {
     color: var(--gray-100);
     font-size: 1.75rem;
+    cursor: pointer;
   }
 
   p {
