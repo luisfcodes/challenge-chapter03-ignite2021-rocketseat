@@ -9,6 +9,7 @@ import styles from './post.module.scss';
 import { RichText } from 'prismic-dom';
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR'
+import { useRouter } from 'next/router';
 
 interface Post {
   first_publication_date: string | null;
@@ -31,8 +32,14 @@ interface PostProps {
   post: Post;
 }
 
-export default function Post({post}: PostProps) {
-  //console.log(post)
+export default function Post({ post }: PostProps) {
+
+  const router = useRouter()
+
+  if (router.isFallback) {
+    return <h1>Carregando...</h1>
+  }
+
   return (
     <>
       <Head>
@@ -67,8 +74,8 @@ export default function Post({post}: PostProps) {
               <div key={content.heading}>
                 <h2>{content.heading}</h2>
                 <div className={styles.postContentParagraphs}>
-                  <div dangerouslySetInnerHTML={{__html: String(content.body)}}   />
-              </div>
+                  <div dangerouslySetInnerHTML={{ __html: String(content.body) }} />
+                </div>
               </div>
             ))}
 
@@ -81,11 +88,17 @@ export default function Post({post}: PostProps) {
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const prismic = getPrismicClient({});
-  //const posts = await prismic.getByType(TODO);
+  const posts = await prismic.getByType('post', {
+    pageSize: 4
+  });
+
+  const paths = await posts.results.map((post) => ({
+    params: { slug: post.uid }
+  }))
 
   return {
-    paths: [],
-    fallback: 'blocking'
+    paths,
+    fallback: true
   }
 };
 
@@ -120,6 +133,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     props: {
       post
     },
-    revalidate: 60 * 60 * 24 // 24 hours
+    revalidate: 1 // 24 hours
   }
 };
