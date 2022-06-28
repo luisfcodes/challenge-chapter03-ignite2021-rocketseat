@@ -38,29 +38,32 @@ export default function Home(props: HomeProps) {
 
   async function handleNextPosts() {
     let nextPosts = []
-    await fetch(props.postsPagination.next_page)
-      .then(response => response.json())
-      .then(data => nextPosts = data.results)
+    try {
+      await fetch(props.postsPagination.next_page)
+        .then(response => response.json())
+        .then(data => nextPosts = data.results)
 
-      const results = nextPosts.map(post => {
-        return {
-          uid: post.uid,
-          first_publication_date: format(
-            new Date(post.first_publication_date),
-            'dd MMM uuuu',
-            {
-              locale: ptBR
-            }
-          ),
-          data: {
-            title: RichText.asText(post.data.title),
-            subtitle: RichText.asText(post.data.subtitle),
-            author: RichText.asText(post.data.author),
-          }
-        }
-      })
-
-      setNextPosts(results)
+      // const results = nextPosts.map(post => {
+      //   return {
+      //     uid: post.uid,
+      //     first_publication_date: format(
+      //       new Date(post.first_publication_date),
+      //       'dd MMM uuuu',
+      //       {
+      //         locale: ptBR
+      //       }
+      //     ),
+      //     data: {
+      //       title: RichText.asText(post.data.title),
+      //       subtitle: RichText.asText(post.data.subtitle),
+      //       author: RichText.asText(post.data.author),
+      //     }
+      //   }
+      // })
+      //setNextPosts(results)
+    } catch (err) {
+      return err
+    }
   }
 
   return (
@@ -79,7 +82,12 @@ export default function Home(props: HomeProps) {
               <div>
                 <span>
                   <FiCalendar />
-                  {post.first_publication_date}
+                  {format(new Date(post.first_publication_date),
+                      'dd MMM uuuu',
+                      {
+                        locale: ptBR
+                      }
+                    )}
                 </span>
                 <span>
                   <FiUser />
@@ -88,30 +96,41 @@ export default function Home(props: HomeProps) {
               </div>
             </li>
           ))}
-          {nextPosts.length === 0 ? (
+          {props.postsPagination.next_page !== null && (
+              
+              <button onClick={handleNextPosts}>
+                Carregar mais posts
+              </button>
+          )}
+          {/* {nextPosts.length === 0 ? (
             <button onClick={handleNextPosts}>
               Carregar mais posts
             </button>
           ) : (
             nextPosts.map(post => (
               <li className={styles.postContent} key={post.uid}>
-              <Link href={`/post/${post.uid}`}>
-                <h2 className={styles.postTitle}>{post.data.title}</h2>
-              </Link>
-              <p>{post.data.subtitle}</p>
-              <div>
-                <span>
-                  <FiCalendar />
-                  {post.first_publication_date}
-                </span>
-                <span>
-                  <FiUser />
-                  {post.data.author}
-                </span>
-              </div>
-            </li>
+                <Link href={`/post/${post.uid}`}>
+                  <h2 className={styles.postTitle}>{post.data.title}</h2>
+                </Link>
+                <p>{post.data.subtitle}</p>
+                <div>
+                  <span>
+                    <FiCalendar />
+                    {format(new Date(post.first_publication_date),
+                      'dd MMM uuuu',
+                      {
+                        locale: ptBR
+                      }
+                    )}
+                  </span>
+                  <span>
+                    <FiUser />
+                    {post.data.author}
+                  </span>
+                </div>
+              </li>
             ))
-          )}
+          )} */}
         </ul>
       </main>
     </>
@@ -125,20 +144,32 @@ export const getStaticProps: GetStaticProps = async () => {
     pageSize: 4
   });
 
+  // const results = allPosts.results.map(post => {
+  //   return {
+  //     uid: post.uid,
+  //     first_publication_date: format(
+  //       new Date(post.first_publication_date),
+  //       'dd MMM uuuu',
+  //       {
+  //         locale: ptBR
+  //       }
+  //     ),
+  //     data: {
+  //       title: RichText.asText(post.data.title),
+  //       subtitle: RichText.asText(post.data.subtitle),
+  //       author: RichText.asText(post.data.author),
+  //     }
+  //   }
+  // })
+
   const results = allPosts.results.map(post => {
     return {
       uid: post.uid,
-      first_publication_date: format(
-        new Date(post.first_publication_date),
-        'dd MMM uuuu',
-        {
-          locale: ptBR
-        }
-      ),
+      first_publication_date: post.first_publication_date,
       data: {
-        title: RichText.asText(post.data.title),
-        subtitle: RichText.asText(post.data.subtitle),
-        author: RichText.asText(post.data.author),
+        title: post.data.title,
+        subtitle: post.data.subtitle,
+        author: post.data.author,
       }
     }
   })

@@ -55,7 +55,12 @@ export default function Post({ post }: PostProps) {
             <div className={styles.postInfo}>
               <span>
                 <FiCalendar />
-                {post.first_publication_date}
+                {format(new Date(post.first_publication_date),
+                  'dd MMM uuuu',
+                  {
+                    locale: ptBR
+                  }
+                )}
               </span>
               <span>
                 <FiUser />
@@ -75,6 +80,7 @@ export default function Post({ post }: PostProps) {
                 <h2>{content.heading}</h2>
                 <div className={styles.postContentParagraphs}>
                   <div dangerouslySetInnerHTML={{ __html: String(content.body) }} />
+                  <div>{RichText.asText(content.body)}</div>
                 </div>
               </div>
             ))}
@@ -106,24 +112,43 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const prismic = getPrismicClient({});
   const response = await prismic.getByUID('post', String(params.slug))
 
+  // const post = {
+  //   first_publication_date: format(
+  //     new Date(response.first_publication_date),
+  //     'dd MMM uuuu',
+  //     {
+  //       locale: ptBR
+  //     }
+  //   ),
+  //   data: {
+  //     title: RichText.asText(response.data.title),
+  //     banner: {
+  //       url: response.data.banner.url,
+  //     },
+  //     author: RichText.asText(response.data.author),
+  //     content: response.data.content.map(teste => {
+  //       return {
+  //         heading: RichText.asText(teste.heading),
+  //         body: RichText.asHtml(teste.body)
+  //       }
+  //     })
+  //   },
+  // }
+
   const post = {
-    first_publication_date: format(
-      new Date(response.first_publication_date),
-      'dd MMM uuuu',
-      {
-        locale: ptBR
-      }
-    ),
+    uid: response.uid,
+    first_publication_date: response.first_publication_date,
     data: {
-      title: RichText.asText(response.data.title),
+      title: response.data.title,
+      subtitle: response.data.subtitle,
       banner: {
         url: response.data.banner.url,
       },
-      author: RichText.asText(response.data.author),
+      author: response.data.author,
       content: response.data.content.map(teste => {
         return {
-          heading: RichText.asText(teste.heading),
-          body: RichText.asHtml(teste.body)
+          heading: teste.heading,
+          body: teste.body
         }
       })
     },
